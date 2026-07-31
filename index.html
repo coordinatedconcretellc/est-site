@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coordinated Concrete — NWA Foundations &amp; Flatwork</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root{
+    --charcoal:#1B1A18;
+    --charcoal-2:#242220;
+    --concrete:#B9B3A8;
+    --concrete-light:#E8E4DC;
+    --chalk:#F4F1EA;
+    --rust:#C1500D;
+    --rust-bright:#E2650F;
+    --line:rgba(244,241,234,0.16);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--charcoal);
+    color:var(--chalk);
+    font-family:'Archivo',sans-serif;
+    overflow-x:hidden;
+  }
+
+  /* Rebar grid texture background */
+  .grid-bg{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:0.5;
+  }
+  .noise{
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  section, header, footer{position:relative; z-index:1;}
+
+  /* eyebrow / stamped labels */
+  .stamp{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--rust-bright);
+    border:1px solid var(--rust);
+    padding:6px 14px;
+    border-radius:2px;
+  }
+  .stamp::before{content:'';width:6px;height:6px;background:var(--rust-bright);border-radius:50%;}
+
+  /* HERO */
+  .hero{
+    min-height:100svh;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:8vh 8vw 10vh;
+    border-bottom:1px solid var(--line);
+  }
+  .hero .stamp{margin-bottom:28px;}
+  .hero h1{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(2.6rem, 8vw, 6.2rem);
+    line-height:0.96;
+    letter-spacing:-0.01em;
+    color:var(--chalk);
+    max-width:14ch;
+  }
+  .hero h1 span{color:var(--rust-bright);}
+  .hero .tagline{
+    margin-top:26px;
+    font-size:clamp(1.05rem,2vw,1.3rem);
+    color:var(--concrete);
+    max-width:44ch;
+    font-weight:500;
+  }
+  .hero .cta-row{
+    margin-top:48px;
+    display:flex; gap:16px; flex-wrap:wrap;
+  }
+  .btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:14px; letter-spacing:0.04em;
+    text-decoration:none;
+    padding:16px 30px;
+    border-radius:2px;
+    display:inline-flex; align-items:center; gap:10px;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .btn-primary{background:var(--rust-bright); color:var(--charcoal); font-weight:700;}
+  .btn-primary:hover{transform:translateY(-2px); background:#f07621;}
+  .btn-ghost{border:1px solid var(--line); color:var(--chalk);}
+  .btn-ghost:hover{border-color:var(--concrete); transform:translateY(-2px);}
+
+  .hero .pourline{
+    margin-top:70px;
+    height:3px; width:100%;
+    background:linear-gradient(90deg, var(--rust) 0%, var(--rust-bright) var(--pour, 0%), var(--line) var(--pour, 0%));
+    position:relative;
+  }
+  .hero .pourline .readout{
+    margin-top:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; color:var(--concrete); letter-spacing:0.08em;
+    display:flex; justify-content:space-between;
+  }
+
+  /* SPEC SHEET SECTION (Scope) */
+  .spec{
+    padding:14vh 8vw;
+    border-bottom:1px solid var(--line);
+  }
+  .spec-head{display:flex; align-items:baseline; gap:20px; margin-bottom:70px;}
+  .spec-head h2{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(1.8rem,4vw,2.8rem);
+  }
+  .spec-head .tick{font-family:'JetBrains Mono',monospace; color:var(--rust-bright); font-size:14px;}
+
+  .scope-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:0;
+    border-top:1px solid var(--line);
+  }
+  .scope-item{
+    padding:32px 26px;
+    border-bottom:1px solid var(--line);
+    border-right:1px solid var(--line);
+    position:relative;
+  }
+  .scope-item:last-child{border-right:none;}
+  .scope-item .dim{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; color:var(--rust-bright); letter-spacing:0.1em;
+    display:block; margin-bottom:14px;
+  }
+  .scope-item h3{font-size:1.15rem; margin-bottom:8px; color:var(--chalk);}
+  .scope-item p{font-size:0.92rem; color:var(--concrete); line-height:1.5;}
+
+  /* SERVICE AREA */
+  .area{padding:14vh 8vw; border-bottom:1px solid var(--line);}
+  .area-wrap{display:grid; grid-template-columns:1.1fr 1fr; gap:60px;}
+  @media(max-width:800px){.area-wrap{grid-template-columns:1fr;}}
+  .area h2{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(1.8rem,4vw,2.8rem);
+    margin-bottom:24px;
+  }
+  .area p.lead{color:var(--concrete); font-size:1.05rem; max-width:42ch; line-height:1.6;}
+  .town-list{list-style:none; font-family:'JetBrains Mono',monospace; font-size:14px;}
+  .town-list li{
+    display:flex; justify-content:space-between;
+    padding:16px 0; border-bottom:1px solid var(--line);
+    color:var(--chalk);
+  }
+  .town-list li span{color:var(--rust-bright);}
+
+  /* WHY */
+  .why{padding:14vh 8vw; border-bottom:1px solid var(--line);}
+  .why h2{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(1.8rem,4vw,2.8rem);
+    margin-bottom:60px;
+  }
+  .why-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:44px;}
+  .why-item .num{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--rust-bright); font-size:13px; letter-spacing:0.1em; margin-bottom:14px; display:block;
+  }
+  .why-item h3{font-size:1.2rem; margin-bottom:10px;}
+  .why-item p{color:var(--concrete); font-size:0.94rem; line-height:1.55;}
+
+  /* ESTIMATE FORM */
+  .estimate{padding:14vh 8vw;}
+  .est-wrap{
+    background:var(--charcoal-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:6vh 6vw;
+    position:relative;
+    overflow:hidden;
+  }
+  .est-wrap::before{
+    content:'REQUEST';
+    position:absolute; top:-20px; right:20px;
+    font-family:'Archivo Black',sans-serif;
+    font-size:9rem; color:rgba(244,241,234,0.03);
+    line-height:1; pointer-events:none;
+  }
+  .estimate h2{
+    font-family:'Archivo Black',sans-serif;
+    font-size:clamp(1.8rem,4vw,2.6rem);
+    margin-bottom:14px;
+  }
+  .estimate .sub{color:var(--concrete); margin-bottom:44px; max-width:48ch;}
+  form{display:grid; grid-template-columns:1fr 1fr; gap:20px; position:relative; z-index:2;}
+  form .full{grid-column:1/-1;}
+  @media(max-width:640px){form{grid-template-columns:1fr;}}
+  label{
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--rust-bright);
+    display:block; margin-bottom:8px;
+  }
+  input, select, textarea{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    color:var(--chalk);
+    font-family:'Archivo',sans-serif;
+    font-size:1rem;
+    padding:10px 2px;
+  }
+  input:focus, select:focus, textarea:focus{
+    outline:none; border-bottom-color:var(--rust-bright);
+  }
+  textarea{resize:vertical; min-height:70px;}
+  select option{background:var(--charcoal);}
+  form .submit-row{margin-top:14px; display:flex; gap:16px; align-items:center; flex-wrap:wrap;}
+  .btn-submit{
+    background:var(--rust-bright); color:var(--charcoal); font-weight:700;
+    border:none; cursor:pointer;
+    font-family:'JetBrains Mono',monospace; font-size:14px; letter-spacing:0.04em;
+    padding:16px 34px; border-radius:2px;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .btn-submit:hover{transform:translateY(-2px); background:#f07621;}
+  .form-note{font-size:12px; color:var(--concrete); font-family:'JetBrains Mono',monospace;}
+
+  footer{
+    padding:8vh 8vw 6vh;
+    display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px;
+  }
+  footer .brand{font-family:'Archivo Black',sans-serif; font-size:1.2rem;}
+  footer .contact{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--concrete); text-align:right;}
+  footer .contact a{color:var(--chalk); text-decoration:none; border-bottom:1px solid var(--rust); }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="noise"></div>
+
+<header class="hero">
+  <span class="stamp">Northwest Arkansas · Est. Trade Partner</span>
+  <h1>Concrete crews that <span>show up</span> and hold the schedule.</h1>
+  <p class="tagline">Coordinated Concrete pours footings, slabs, and flatwork for production builders and custom homes across Bentonville, Rogers, Springdale, and Fayetteville — priced right, poured on time.</p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="#estimate">Book Your Estimate Day →</a>
+    <a class="btn btn-ghost" href="tel:+14792838806">Call Alonzo Direct</a>
+  </div>
+  <div class="pourline" style="--pour:38%">
+    <div class="readout"><span>FOOTING</span><span>SLAB</span><span>FINISH</span><span>CURE</span></div>
+  </div>
+</header>
+
+<section class="spec">
+  <div class="spec-head">
+    <h2>Scope of Work</h2>
+    <span class="tick">/// what we pour</span>
+  </div>
+  <div class="scope-grid">
+    <div class="scope-item">
+      <span class="dim">FTG · 0.0833 CYD/LF</span>
+      <h3>Footings</h3>
+      <p>Spread and continuous footings, engineered to plan spec, tiered pricing for any run length.</p>
+    </div>
+    <div class="scope-item">
+      <span class="dim">SLAB · MONOLITHIC</span>
+      <h3>Slabs &amp; Foundations</h3>
+      <p>Monolithic pours, footing + stem wall, garage and porch slabs — residential and production scale.</p>
+    </div>
+    <div class="scope-item">
+      <span class="dim">BLOCK · CMU</span>
+      <h3>Block &amp; Site Work</h3>
+      <p>Block laying, grading, and the site prep that has to happen before a pour ever starts.</p>
+    </div>
+    <div class="scope-item">
+      <span class="dim">VOL · BATCH</span>
+      <h3>Production Volume</h3>
+      <p>Built to run multiple lots on a subdivision timeline without missing a builder's schedule.</p>
+    </div>
+    <div class="scope-item">
+      <span class="dim">PREP · LOT</span>
+      <h3>Lot Clearing</h3>
+      <p>Tree removal, haul-off, and site grading to get a lot pour-ready before we ever touch concrete.</p>
+    </div>
+  </div>
+</section>
+
+<section class="area">
+  <div class="area-wrap">
+    <div>
+      <h2>Where We Pour</h2>
+      <p class="lead">Based in Northwest Arkansas, running crews across the corridor. If your lot's in this stretch, we're already close.</p>
+    </div>
+    <ul class="town-list">
+      <li>Bentonville <span>Active</span></li>
+      <li>Rogers <span>Active</span></li>
+      <li>Springdale <span>Active</span></li>
+      <li>Fayetteville <span>Active</span></li>
+      <li>Siloam Springs <span>Active</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="why">
+  <h2>Why Builders Bring Us Back</h2>
+  <div class="why-grid">
+    <div class="why-item">
+      <span class="num">01 / SCHEDULE</span>
+      <h3>We hold the pour date</h3>
+      <p>A missed pour date holds up every trade behind it. We plan mobilization so your schedule doesn't slip.</p>
+    </div>
+    <div class="why-item">
+      <span class="num">02 / SCOPE</span>
+      <h3>Priced by the plan, not a guess</h3>
+      <p>Every bid is built off real material takeoffs and labor rates — no change-order surprises later.</p>
+    </div>
+    <div class="why-item">
+      <span class="num">03 / CAPACITY</span>
+      <h3>Overflow-ready</h3>
+      <p>Need backup capacity when your main sub is slammed? We're built to flex in on short notice.</p>
+    </div>
+  </div>
+</section>
+
+<section class="estimate" id="estimate">
+  <div class="est-wrap">
+    <h2>Book Your Estimate Day</h2>
+    <p class="sub">Pick a real day, we show up and price it on-site. No wandering quotes, no window shopping — if you're ready to schedule, we're ready to pour.</p>
+    <form id="estimateForm">
+      <div>
+        <label for="name">Your Name</label>
+        <input type="text" id="name" required>
+      </div>
+      <div>
+        <label for="company">Company / Builder</label>
+        <input type="text" id="company">
+      </div>
+      <div>
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" required>
+      </div>
+      <div>
+        <label for="type">Project Type</label>
+        <select id="type">
+          <option>Production / Subdivision</option>
+          <option>Custom Home</option>
+          <option>Pool Deck / Patio</option>
+          <option>Driveway / Flatwork</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="full">
+        <label for="scope">Scope / Sqft / Details</label>
+        <textarea id="scope" placeholder="e.g. 2,500 sqft monolithic slab + lot clearing on a wooded lot"></textarea>
+      </div>
+      <div>
+        <label for="estdate">Pick Your Estimate Day</label>
+        <input type="date" id="estdate" required>
+      </div>
+      <div>
+        <label for="esttime">Preferred Window</label>
+        <select id="esttime">
+          <option>Morning (7-10am)</option>
+          <option>Midday (10am-1pm)</option>
+          <option>Afternoon (1-4pm)</option>
+        </select>
+      </div>
+      <div class="full submit-row">
+        <button type="submit" class="btn-submit">Book My Estimate →</button>
+        <span class="form-note">Locks in a real day — we'll call to confirm the time</span>
+      </div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="brand">COORDINATED CONCRETE</div>
+  <div class="contact">
+    (479) 283-8806 · (479) 565-4575<br>
+    coordinatedconcrete@gmail.com<br>
+    <a href="https://instagram.com/alonzo.coordinatedconcrete" target="_blank">@alonzo.coordinatedconcrete</a>
+  </div>
+</footer>
+
+<script>
+// Restrict date picker to tomorrow onward
+const dateInput = document.getElementById('estdate');
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+dateInput.min = tomorrow.toISOString().split('T')[0];
+
+document.getElementById('estimateForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const name = document.getElementById('name').value;
+  const company = document.getElementById('company').value;
+  const phone = document.getElementById('phone').value;
+  const type = document.getElementById('type').value;
+  const scope = document.getElementById('scope').value;
+  const estdate = document.getElementById('estdate').value;
+  const esttime = document.getElementById('esttime').value;
+  const subject = encodeURIComponent(`Estimate Booking - ${name} - ${estdate}`);
+  const body = encodeURIComponent(
+`Name: ${name}
+Company: ${company}
+Phone: ${phone}
+Project Type: ${type}
+Scope: ${scope}
+Requested Estimate Day: ${estdate}
+Preferred Window: ${esttime}`
+  );
+  window.location.href = `mailto:coordinatedconcrete@gmail.com?subject=${subject}&body=${body}`;
+});
+</script>
+
+</body>
+</html>
